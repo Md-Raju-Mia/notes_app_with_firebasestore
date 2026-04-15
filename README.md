@@ -1,4 +1,4 @@
-# Cloud Notes - Interview Ready Flutter App
+# Cloud Notes
 
 A modern, high-performance Notes Application built with **Flutter**, **Firebase**, and **Provider** following the **MVVM (Model-View-ViewModel)** architecture. This project is designed to be "Interview-Ready," demonstrating clean code, scalable structure, and real-time cloud synchronization.
 
