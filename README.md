@@ -65,17 +65,51 @@ We followed the **MVVM** pattern to ensure a strict separation of concerns:
 ---
 
 ## 7. Development File List & Reasons
-| File | Reason for development |
+For learning purposes, here are all the files touched during the development of this project and the reasons for their modification:
+
+### Root Files
+| File | Touch Reason |
 | :--- | :--- |
-| `note_model.dart` | Defines what a "Note" looks like (id, title, color, pin status). |
-| `auth_repository.dart` | Encapsulates all Firebase Authentication logic for reusability. |
-| `note_repository.dart` | Handles all Firestore CRUD operations (Create, Read, Update, Delete). |
-| `note_viewmodel.dart` | Manages note state, search queries, categories, and sorting logic. |
-| `theme_viewmodel.dart` | Manages the Dark/Light mode state across the app. |
-| `home_screen.dart` | The main dashboard featuring the Staggered Grid and Category filters. |
-| `add_edit_note_screen.dart` | The detailed editor with color picking and pinning functionality. |
-| `login_screen.dart` | Handles user authentication with visibility toggles and clean UI. |
-| `main.dart` | The entry point where we initialize Firebase and configure MultiProvider. |
+| `pubspec.yaml` | Declared dependencies (`firebase`, `provider`, `animations`, etc.) and assets for app icon. |
+| `README.md` | Documented project details, architecture, and setup guides. |
+
+### Models Layer (`lib/models/`)
+| File | Touch Reason |
+| :--- | :--- |
+| `note_model.dart` | Created the blueprint for a Note, including serialization logic for Firestore. |
+| `user_model.dart` | Defined a simplified User model to handle authentication data. |
+
+### Repositories Layer (`lib/repositories/`)
+| File | Touch Reason |
+| :--- | :--- |
+| `auth_repository.dart` | Wrapped Firebase Auth APIs to provide a clean interface for Login/Signup. |
+| `note_repository.dart` | Implemented Firestore operations for real-time note syncing. |
+
+### ViewModels Layer (`lib/viewmodels/`)
+| File | Touch Reason |
+| :--- | :--- |
+| `auth_viewmodel.dart` | Managed authentication state and user sessions. |
+| `note_viewmodel.dart` | Controlled business logic for sorting, pinning, and category filtering. |
+| `theme_viewmodel.dart` | Handled the app's dark/light mode state switching. |
+
+### Views Layer (`lib/views/`)
+| File | Touch Reason |
+| :--- | :--- |
+| `login_screen.dart` | Developed the auth UI with password visibility toggles and theme support. |
+| `home_screen.dart` | Built the main dashboard with Staggered Grid, search, and category chips. |
+| `add_edit_note_screen.dart` | Created the detailed editor with color picker, pinning, and category selection. |
+
+### App Core (`lib/`)
+| File | Touch Reason |
+| :--- | :--- |
+| `main.dart` | Initialized Firebase, configured MultiProvider, and defined the app theme. |
+
+### Android Configuration (`android/`)
+| File | Touch Reason |
+| :--- | :--- |
+| `build.gradle.kts` (Root) | Added the Google Services classpath. |
+| `build.gradle.kts` (App) | Applied Google Services plugin and added Firebase dependencies. |
+| `google-services.json` | Placed the configuration file from Firebase Console to connect the project. |
 
 ---
 
