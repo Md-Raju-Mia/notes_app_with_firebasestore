@@ -102,6 +102,7 @@ dependencies:
   intl: ^0.20.2            # Date Formatting
   animations: ^2.0.11      # Premium UI Transitions
   flutter_staggered_grid_view: ^0.7.0 # Masonry Grid Layout
+  flutter_launcher_icons: ^0.13.1 # App Icon Generator
 ```
 
 ---
@@ -137,3 +138,32 @@ Firestore requires a **Composite Index** to sort notes by time for a specific us
 - Collection ID: `notes`
 - Fields: `userId` (Ascending), `timestamp` (Descending).
 - Click the link provided in the app console/logcat to create it automatically.
+
+---
+
+## 11. Custom App Icon Setup
+To change the app icon from the default Flutter logo to a custom brand icon (like our **Raju** branded icon), follow these steps:
+
+### Step 1: Prepare the Icon
+- Place your high-resolution icon image (PNG) in the `assets/` folder.
+- Current path: `assets/icon_note_app.png`.
+
+### Step 2: Configure `pubspec.yaml`
+Add the `flutter_launcher_icons` configuration to your `pubspec.yaml`:
+```yaml
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon_note_app.png"
+  adaptive_icon_background: "#673AB7" # Purple brand color
+  adaptive_icon_foreground: "assets/icon_note_app.png"
+```
+
+### Step 3: Run Generation Commands
+Execute these commands in your terminal to generate all required icon sizes:
+1. `flutter pub get`
+2. `flutter pub run flutter_launcher_icons`
+
+### Step 4: Deploy
+- Uninstall the current app from your device.
+- Run `flutter run` to see the new **Raju** branded icon on your home screen!
