@@ -110,28 +110,39 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<NoteViewModel>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     
+    // Adjust background color for dark mode
+    Color bgColor = isDark && _selectedColor == 0xFFFFFFFF 
+        ? Theme.of(context).scaffoldBackgroundColor 
+        : Color(_selectedColor);
+
     return Scaffold(
-      backgroundColor: Color(_selectedColor),
+      backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
           IconButton(
-            icon: Icon(_isPinned ? Icons.push_pin : Icons.push_pin_outlined),
+            icon: Icon(
+              _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+              color: isDark ? Colors.white : Colors.black87,
+            ),
             onPressed: () => setState(() => _isPinned = !_isPinned),
-            tooltip: 'Pin Note',
           ),
           IconButton(
-            icon: const Icon(Icons.check),
+            icon: Icon(Icons.check, color: isDark ? Colors.white : Colors.black87),
             onPressed: _saveNote,
-            tooltip: 'Save Note',
           ),
         ],
       ),
       body: Column(
         children: [
-          _buildToolBar(vm),
+          _buildToolBar(vm, isDark),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -139,9 +150,14 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
                 children: [
                   TextField(
                     controller: _titleController,
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                    decoration: const InputDecoration(
+                    style: TextStyle(
+                      fontSize: 26, 
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                    decoration: InputDecoration(
                       hintText: 'Title',
+                      hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.black38),
                       border: InputBorder.none,
                     ),
                   ),
@@ -149,9 +165,13 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
                   TextField(
                     controller: _descriptionController,
                     maxLines: null,
-                    style: const TextStyle(fontSize: 18),
-                    decoration: const InputDecoration(
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: isDark ? Colors.white70 : Colors.black87,
+                    ),
+                    decoration: InputDecoration(
                       hintText: 'Start typing...',
+                      hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.black38),
                       border: InputBorder.none,
                     ),
                   ),
@@ -164,11 +184,11 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
     );
   }
 
-  Widget _buildToolBar(NoteViewModel vm) {
+  Widget _buildToolBar(NoteViewModel vm, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.05),
+        color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.05),
       ),
       child: Column(
         children: [
@@ -179,30 +199,32 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: _colors.length,
               itemBuilder: (context, index) {
-                final color = _colors[index];
+                final colorValue = _colors[index];
                 return GestureDetector(
-                  onTap: () => setState(() => _selectedColor = color),
+                  onTap: () => setState(() => _selectedColor = colorValue),
                   child: Container(
                     width: 30,
                     height: 30,
                     margin: const EdgeInsets.only(right: 12),
                     decoration: BoxDecoration(
-                      color: Color(color),
+                      color: Color(colorValue),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: _selectedColor == color ? Colors.black : Colors.black12,
-                        width: _selectedColor == color ? 2 : 1,
+                        color: _selectedColor == colorValue 
+                            ? (isDark ? Colors.white : Colors.black) 
+                            : Colors.black12,
+                        width: _selectedColor == colorValue ? 2 : 1,
                       ),
                     ),
-                    child: _selectedColor == color 
-                      ? const Icon(Icons.check, size: 16) 
+                    child: _selectedColor == colorValue 
+                      ? Icon(Icons.check, size: 16, color: colorValue == 0xFFFFFFFF ? Colors.black : Colors.black) 
                       : null,
                   ),
                 );
               },
             ),
           ),
-          const Divider(height: 16),
+          Divider(height: 16, color: isDark ? Colors.white10 : Colors.black12),
           SizedBox(
             height: 40,
             child: ListView.builder(
@@ -219,6 +241,12 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
                     label: Text(cat, style: const TextStyle(fontSize: 12)),
                     selected: isSelected,
                     onSelected: (val) => setState(() => _selectedCategory = cat),
+                    selectedColor: Theme.of(context).colorScheme.primaryContainer,
+                    labelStyle: TextStyle(
+                      color: isSelected 
+                          ? Theme.of(context).colorScheme.onPrimaryContainer
+                          : (isDark ? Colors.white70 : Colors.black87),
+                    ),
                   ),
                 );
               },

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../models/note_model.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/note_viewmodel.dart';
+import '../viewmodels/theme_viewmodel.dart';
 import 'add_edit_note_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,12 +24,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final authViewModel = context.read<AuthViewModel>();
     final noteViewModel = context.watch<NoteViewModel>();
+    final themeViewModel = context.watch<ThemeViewModel>();
     final user = authViewModel.user;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cloud Notes', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
+          IconButton(
+            icon: Icon(themeViewModel.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () => themeViewModel.toggleTheme(!themeViewModel.isDarkMode),
+            tooltip: 'Toggle Theme',
+          ),
           IconButton(
             icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
             onPressed: () => setState(() => _isGridView = !_isGridView),
@@ -41,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          _buildSearchBar(),
+          _buildSearchBar(isDark),
           _buildCategoryFilter(noteViewModel),
           Expanded(
             child: StreamBuilder<List<Note>>(
@@ -56,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 final allNotes = snapshot.data ?? [];
                 
-                // Filtering
                 var filteredNotes = allNotes.where((note) {
                   final matchesSearch = note.title.toLowerCase().contains(_searchQuery) ||
                       note.description.toLowerCase().contains(_searchQuery);
@@ -65,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   return matchesSearch && matchesCategory;
                 }).toList();
 
-                // Sorting: Pinned first, then by timestamp
                 filteredNotes.sort((a, b) {
                   if (a.isPinned && !b.isPinned) return -1;
                   if (!a.isPinned && b.isPinned) return 1;
@@ -101,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextField(
@@ -109,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
           hintText: 'Search your notes',
           prefixIcon: const Icon(Icons.search),
           filled: true,
-          fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+          fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
             borderSide: BorderSide.none,
@@ -148,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.note_alt_outlined, size: 80, color: Colors.grey.withOpacity(0.5)),
+          Icon(Icons.note_alt_outlined, size: 80, color: Colors.grey.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text(
             _searchQuery.isEmpty ? 'No notes yet' : 'No results found',
@@ -186,6 +192,10 @@ class _NoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final noteViewModel = context.read<NoteViewModel>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Adjust colors for dark mode to ensure text is readable
+    Color cardColor = Color(note.noteColorFor(isDark));
     
     return OpenContainer(
       closedElevation: 0,
@@ -196,11 +206,7 @@ class _NoteCard extends StatelessWidget {
         onLongPress: () => _showDeleteDialog(context, noteViewModel),
         child: Card(
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.grey.withOpacity(0.2)),
-          ),
-          color: Color(note.color).withOpacity(0.9),
+          color: cardColor,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -213,31 +219,50 @@ class _NoteCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.black12,
+                          color: isDark ? Colors.white12 : Colors.black12,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text(note.category, style: const TextStyle(fontSize: 10)),
+                        child: Text(
+                          note.category, 
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isDark ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
                       ),
                     if (note.isPinned)
-                      const Icon(Icons.push_pin, size: 16, color: Colors.black54),
+                      Icon(
+                        Icons.push_pin, 
+                        size: 16, 
+                        color: isDark ? Colors.white54 : Colors.black54,
+                      ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
                   note.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, 
+                    fontSize: 16,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   note.description,
                   maxLines: 8,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: Colors.black.withOpacity(0.7)),
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : Colors.black.withValues(alpha: 0.7),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   DateFormat.yMMMd().format(note.timestamp),
-                  style: const TextStyle(fontSize: 10, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 10, 
+                    color: isDark ? Colors.white38 : Colors.black54,
+                  ),
                 ),
               ],
             ),
@@ -265,5 +290,20 @@ class _NoteCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+extension NoteColorExtension on Note {
+  int noteColorFor(bool isDark) {
+    if (!isDark) return color;
+    
+    // If it's pure white in light mode, use a dark surface color in dark mode
+    if (color == 0xFFFFFFFF) return 0xFF1E1E1E;
+    
+    // For other colors, we can slightly darken/desaturate them for dark mode
+    // or use a consistent dark theme mapping.
+    // Simple approach: if it's not white, use a semi-transparent overlay of the color
+    // or return a specific dark-mode version.
+    return color; // We will adjust the opacity in the UI instead for simplicity
   }
 }
